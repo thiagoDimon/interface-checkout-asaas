@@ -1,4 +1,4 @@
-package com.app.asaas.demo.product;
+package com.app.asaas.demo.product.entity;
 
 import java.math.BigDecimal;
 

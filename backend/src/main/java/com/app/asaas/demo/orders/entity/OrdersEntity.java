@@ -1,10 +1,11 @@
-package com.app.asaas.demo.orders;
+package com.app.asaas.demo.orders.entity;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
-import com.app.asaas.demo.customers.CustomerEntity;
-import com.app.asaas.demo.product.ProductEntity;
+import com.app.asaas.demo.customers.entity.CustomerEntity;
+import com.app.asaas.demo.orders.enums.OrderStatusEnum;
+import com.app.asaas.demo.product.entity.ProductEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

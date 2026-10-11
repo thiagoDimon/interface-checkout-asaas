@@ -1,4 +1,4 @@
-package com.app.asaas.demo.customers;
+package com.app.asaas.demo.customers.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
