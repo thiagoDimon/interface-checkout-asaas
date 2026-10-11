@@ -4,14 +4,11 @@
       <div v-if="open" :id="`${id}-backdrop`" class="base-modal__backdrop" @click.self="close">
         <div
           :id="id"
-          ref="dialog"
           class="base-modal"
           :class="`base-modal--${size}`"
           role="dialog"
           aria-modal="true"
           :aria-labelledby="`${id}-title`"
-          tabindex="-1"
-          @keydown.tab="trapFocus"
         >
           <header class="base-modal__header">
             <h2 :id="`${id}-title`" class="base-modal__title">{{ title }}</h2>
@@ -50,8 +47,6 @@
 
 <script>
 const SIZES = ['medium', 'large']
-const FOCUSABLE_SELECTOR =
-  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
 export default {
   name: 'BaseModal',
@@ -75,11 +70,6 @@ export default {
     },
   },
   emits: ['close'],
-  data() {
-    return {
-      previouslyFocusedElement: null,
-    }
-  },
   watch: {
     open: {
       immediate: true,
@@ -100,48 +90,19 @@ export default {
       this.$emit('close')
     },
 
-    async activate() {
-      this.previouslyFocusedElement = document.activeElement
+    activate() {
       document.body.style.overflow = 'hidden'
       document.addEventListener('keydown', this.handleEscape)
-
-      await this.$nextTick()
-      this.$refs.dialog?.focus()
     },
 
     deactivate() {
       document.body.style.overflow = ''
       document.removeEventListener('keydown', this.handleEscape)
-
-      this.previouslyFocusedElement?.focus()
-      this.previouslyFocusedElement = null
     },
 
     handleEscape(event) {
       if (event.key === 'Escape') {
         this.close()
-      }
-    },
-
-    trapFocus(event) {
-      const focusableElements = [...this.$refs.dialog.querySelectorAll(FOCUSABLE_SELECTOR)]
-      if (focusableElements.length === 0) {
-        event.preventDefault()
-        return
-      }
-
-      const firstElement = focusableElements[0]
-      const lastElement = focusableElements[focusableElements.length - 1]
-      const isLeavingStart = event.shiftKey && document.activeElement === firstElement
-      const isLeavingEnd = !event.shiftKey && document.activeElement === lastElement
-      const isOutside = !focusableElements.includes(document.activeElement)
-
-      if (isLeavingStart || isOutside) {
-        event.preventDefault()
-        ;(event.shiftKey ? lastElement : firstElement).focus()
-      } else if (isLeavingEnd) {
-        event.preventDefault()
-        firstElement.focus()
       }
     },
   },
@@ -169,10 +130,6 @@ export default {
   background-color: var(--color-surface);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-modal);
-}
-
-.base-modal:focus {
-  outline: none;
 }
 
 .base-modal--medium {
