@@ -1,0 +1,7 @@
+### Ferramentas de IDE ###
+**/.github/modernize/
+
+### Variáveis de ambiente ###
+.env
+.env.*
+!.env.example

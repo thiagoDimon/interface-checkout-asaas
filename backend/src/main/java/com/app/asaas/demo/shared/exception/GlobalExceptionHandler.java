@@ -24,6 +24,13 @@ public class GlobalExceptionHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+    @ExceptionHandler(PaymentGatewayException.class)
+    public ResponseEntity<ErrorResponseDTO> handlePaymentGateway(PaymentGatewayException exception,
+            HttpServletRequest request) {
+        LOGGER.error("Falha na comunicação com o gateway de pagamento em {}", request.getRequestURI(), exception);
+        return buildResponse(HttpStatus.BAD_GATEWAY, exception.getMessage(), request);
+    }
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponseDTO> handleResourceNotFound(ResourceNotFoundException exception,
             HttpServletRequest request) {
