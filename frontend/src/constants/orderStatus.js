@@ -1,27 +1,28 @@
-export const ORDER_STATUS = {
-  PENDING: {
+import OrderStatusEnum from '@/enums/orderStatus'
+
+export const ORDER_STATUS = Object.freeze({
+  [OrderStatusEnum.PENDING]: {
     label: 'Pendente',
     badgeVariant: 'warning',
     alertVariant: 'warning',
-    message:
-      'Aguardando a confirmação do pagamento pelo Asaas. Esta página é atualizada automaticamente.',
+    message: 'Aguardando a confirmação do pagamento. Esta página é atualizada automaticamente.',
   },
-  PAID: {
+  [OrderStatusEnum.PAID]: {
     label: 'Pago',
     badgeVariant: 'success',
     alertVariant: 'success',
-    message: 'Pagamento confirmado pelo Asaas. Seu pedido foi liberado.',
+    message: 'Pagamento confirmado. Seu pedido foi liberado.',
   },
-  EXPIRED: {
+  [OrderStatusEnum.EXPIRED]: {
     label: 'Expirado',
     badgeVariant: 'danger',
     alertVariant: 'error',
     message: 'O prazo para pagamento expirou. Nenhuma cobrança foi realizada.',
   },
-  CANCELED: {
+  [OrderStatusEnum.CANCELED]: {
     label: 'Cancelado',
     badgeVariant: 'neutral',
     alertVariant: 'info',
     message: 'O pagamento foi cancelado.',
   },
-}
+})

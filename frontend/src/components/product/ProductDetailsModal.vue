@@ -20,20 +20,10 @@
 
     <template #footer>
       <div class="product-details__footer">
-        <BaseAlert
-          v-if="errorMessage"
-          :id="`${id}-error`"
-          variant="error"
-          title="Não foi possível iniciar o pagamento"
-        >
-          {{ errorMessage }}
-        </BaseAlert>
-
         <BaseButton
           :id="`${id}-buy-button`"
           class="product-details__buy-button"
           variant="cta"
-          :loading="loading"
           :disabled="disabled"
           @click="handleBuy"
         >
@@ -45,7 +35,6 @@
 </template>
 
 <script>
-import BaseAlert from '@/components/base/BaseAlert.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import BaseModal from '@/components/base/BaseModal.vue'
 
@@ -54,7 +43,6 @@ const EMPTY_DESCRIPTION_MESSAGE = 'Este produto não possui descrição.'
 export default {
   name: 'ProductDetailsModal',
   components: {
-    BaseAlert,
     BaseButton,
     BaseModal,
   },
@@ -71,17 +59,9 @@ export default {
       type: Object,
       default: null,
     },
-    loading: {
-      type: Boolean,
-      default: false,
-    },
     disabled: {
       type: Boolean,
       default: false,
-    },
-    errorMessage: {
-      type: String,
-      default: '',
     },
   },
   emits: ['close', 'buy'],

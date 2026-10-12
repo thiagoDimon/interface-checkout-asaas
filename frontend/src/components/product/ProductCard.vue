@@ -38,7 +38,7 @@
 <script>
 import BaseButton from '@/components/base/BaseButton.vue'
 import BaseCard from '@/components/base/BaseCard.vue'
-import { formatCurrency } from '@/utils/formatCurrency'
+import { formatCurrency } from '@/utils/formatters'
 
 export default {
   name: 'ProductCard',

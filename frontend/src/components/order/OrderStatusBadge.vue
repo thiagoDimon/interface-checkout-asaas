@@ -7,6 +7,7 @@
 <script>
 import BaseBadge from '@/components/base/BaseBadge.vue'
 import { ORDER_STATUS } from '@/constants/orderStatus'
+import OrderStatusEnum from '@/enums/orderStatus'
 
 export default {
   name: 'OrderStatusBadge',
@@ -21,7 +22,7 @@ export default {
     status: {
       type: String,
       required: true,
-      validator: (value) => Object.keys(ORDER_STATUS).includes(value),
+      validator: (value) => Object.values(OrderStatusEnum).includes(value),
     },
   },
   computed: {

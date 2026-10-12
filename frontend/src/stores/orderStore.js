@@ -12,7 +12,7 @@ export const useOrderStore = defineStore('order', {
     isCreatingOrder: (state) => state.creatingProductId !== null,
   },
   actions: {
-    async createOrder({ productId, customerId }) {
+    async createOrder({ productId, customerId, billingType, chargeType }) {
       if (this.isCreatingOrder) {
         return null
       }
@@ -21,7 +21,12 @@ export const useOrderStore = defineStore('order', {
       this.error = null
 
       try {
-        this.currentOrder = await orderService.createOrder({ productId, customerId })
+        this.currentOrder = await orderService.createOrder({
+          productId,
+          customerId,
+          billingType,
+          chargeType,
+        })
         return this.currentOrder
       } catch (error) {
         this.error = error.message

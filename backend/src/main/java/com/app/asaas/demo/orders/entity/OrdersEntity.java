@@ -5,6 +5,8 @@ import java.time.Instant;
 
 import com.app.asaas.demo.customers.entity.CustomerEntity;
 import com.app.asaas.demo.orders.enums.OrderStatusEnum;
+import com.app.asaas.demo.payment.enums.BillingTypeEnum;
+import com.app.asaas.demo.payment.enums.ChargeTypeEnum;
 import com.app.asaas.demo.product.entity.ProductEntity;
 
 import jakarta.persistence.Column;
@@ -42,6 +44,14 @@ public class OrdersEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     private OrderStatusEnum status = OrderStatusEnum.PENDING;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "billing_type", nullable = false, updatable = false, length = 20)
+    private BillingTypeEnum billingType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "charge_type", nullable = false, updatable = false, length = 20)
+    private ChargeTypeEnum chargeType;
 
     @Column(name = "asaas_checkout_id", length = 100)
     private String asaasCheckoutId;
@@ -98,6 +108,22 @@ public class OrdersEntity {
 
     public void setStatus(OrderStatusEnum status) {
         this.status = status;
+    }
+
+    public BillingTypeEnum getBillingType() {
+        return billingType;
+    }
+
+    public void setBillingType(BillingTypeEnum billingType) {
+        this.billingType = billingType;
+    }
+
+    public ChargeTypeEnum getChargeType() {
+        return chargeType;
+    }
+
+    public void setChargeType(ChargeTypeEnum chargeType) {
+        this.chargeType = chargeType;
     }
 
     public String getAsaasCheckoutId() {

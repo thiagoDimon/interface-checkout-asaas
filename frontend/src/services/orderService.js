@@ -1,8 +1,13 @@
 import httpClient from './httpClient'
 
 export default {
-  async createOrder({ productId, customerId }) {
-    const { data } = await httpClient.post('/orders', { productId, customerId })
+  async createOrder({ productId, customerId, billingType, chargeType }) {
+    const { data } = await httpClient.post('/orders', {
+      productId,
+      customerId,
+      billingType,
+      chargeType,
+    })
     return data
   },
   async getOrderById(id) {

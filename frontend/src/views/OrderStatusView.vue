@@ -37,6 +37,10 @@
           </dd>
         </div>
         <div class="order-status-view__detail">
+          <dt>Pagamento</dt>
+          <dd id="order-status-payment">{{ paymentLabel }}</dd>
+        </div>
+        <div class="order-status-view__detail">
           <dt>Cliente</dt>
           <dd id="order-status-customer-name">{{ order.customerName }}</dd>
         </div>
@@ -67,9 +71,11 @@ import BaseCard from '@/components/base/BaseCard.vue'
 import BaseLoader from '@/components/base/BaseLoader.vue'
 import OrderStatusBadge from '@/components/order/OrderStatusBadge.vue'
 import { ORDER_STATUS } from '@/constants/orderStatus'
+import { BILLING_TYPE_OPTIONS, CHARGE_TYPE_OPTIONS } from '@/constants/paymentOptions'
+import OrderStatusEnum from '@/enums/orderStatus'
 import { useOrderStore } from '@/stores/orderStore'
-import { formatCurrency } from '@/utils/formatCurrency'
-import { formatDateTime } from '@/utils/formatDateTime'
+import { formatCurrency, formatDateTime } from '@/utils/formatters'
+import { findOptionLabel } from '@/utils/options'
 
 const POLLING_INTERVAL_MS = 5000
 
@@ -102,8 +108,13 @@ export default {
     statusConfig() {
       return ORDER_STATUS[this.order.status]
     },
+    paymentLabel() {
+      const billingType = findOptionLabel(BILLING_TYPE_OPTIONS, this.order.billingType)
+      const chargeType = findOptionLabel(CHARGE_TYPE_OPTIONS, this.order.chargeType)
+      return `${billingType} · ${chargeType}`
+    },
     isPending() {
-      return this.order?.status === 'PENDING'
+      return this.order?.status === OrderStatusEnum.PENDING
     },
   },
   async created() {

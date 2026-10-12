@@ -55,7 +55,7 @@
       :products="products"
       :buying-product-id="buyingProductId"
       :buy-disabled="isBuyDisabled"
-      @buy="handleBuy"
+      @buy="openPaymentOptions"
       @view="openProductDetails"
     />
 
@@ -63,11 +63,20 @@
       id="product-details-modal"
       :open="isProductDetailsOpen"
       :product="selectedProduct"
-      :loading="isSelectedProductBuying"
+      :disabled="isBuyDisabled"
+      @close="closeProductDetails"
+      @buy="openPaymentOptions"
+    />
+
+    <PaymentOptionsModal
+      id="payment-options-modal"
+      :open="isPaymentOptionsOpen"
+      :product="paymentProduct"
+      :loading="isPaymentProductBuying"
       :disabled="isBuyDisabled"
       :error-message="checkoutError ?? ''"
-      @close="closeProductDetails"
-      @buy="handleBuy"
+      @close="closePaymentOptions"
+      @confirm="handleBuy"
     />
   </section>
 </template>
@@ -77,6 +86,7 @@ import { mapActions, mapState } from 'pinia'
 import BaseAlert from '@/components/base/BaseAlert.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import BaseLoader from '@/components/base/BaseLoader.vue'
+import PaymentOptionsModal from '@/components/checkout/PaymentOptionsModal.vue'
 import ProductDetailsModal from '@/components/product/ProductDetailsModal.vue'
 import ProductList from '@/components/product/ProductList.vue'
 import { useCustomerStore } from '@/stores/customerStore'
@@ -91,6 +101,7 @@ export default {
     BaseAlert,
     BaseButton,
     BaseLoader,
+    PaymentOptionsModal,
     ProductDetailsModal,
     ProductList,
   },
@@ -100,6 +111,8 @@ export default {
       redirectError: null,
       selectedProduct: null,
       isProductDetailsOpen: false,
+      paymentProduct: null,
+      isPaymentOptionsOpen: false,
     }
   },
   computed: {
@@ -125,8 +138,8 @@ export default {
     isBuyDisabled() {
       return !this.hasCustomer || this.buyingProductId !== null
     },
-    isSelectedProductBuying() {
-      return this.selectedProduct !== null && this.buyingProductId === this.selectedProduct.id
+    isPaymentProductBuying() {
+      return this.paymentProduct !== null && this.buyingProductId === this.paymentProduct.id
     },
     checkoutError() {
       return this.orderError ?? this.redirectError
@@ -151,12 +164,27 @@ export default {
       this.isProductDetailsOpen = false
     },
 
-    async handleBuy(product) {
+    openPaymentOptions(product) {
+      this.redirectError = null
+      this.clearOrderError()
+      this.isProductDetailsOpen = false
+      this.paymentProduct = product
+      this.isPaymentOptionsOpen = true
+    },
+
+    closePaymentOptions() {
+      this.isPaymentOptionsOpen = false
+    },
+
+    async handleBuy({ billingType, chargeType }) {
+      const product = this.paymentProduct
       this.redirectError = null
 
       const order = await this.createOrder({
         productId: product.id,
         customerId: this.customer.id,
+        billingType,
+        chargeType,
       })
 
       if (!order) {
