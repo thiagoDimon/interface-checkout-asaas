@@ -1,5 +1,10 @@
 <template>
-  <fieldset :id="id" class="base-radio-group">
+  <fieldset
+    :id="id"
+    class="base-radio-group"
+    :class="{ 'base-radio-group--disabled': disabled }"
+    :disabled="disabled"
+  >
     <legend :id="`${id}-legend`" class="base-radio-group__legend">{{ legend }}</legend>
 
     <label
@@ -48,6 +53,10 @@ export default {
       type: String,
       default: null,
     },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: ['update:modelValue'],
   methods: {
@@ -90,9 +99,14 @@ export default {
   transition: border-color var(--transition-fast);
 }
 
-.base-radio-group__option:hover,
+.base-radio-group:not(.base-radio-group--disabled) .base-radio-group__option:hover,
 .base-radio-group__option--selected {
   border-color: var(--color-primary);
+}
+
+.base-radio-group--disabled .base-radio-group__option {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .base-radio-group__option:focus-within {

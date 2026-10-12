@@ -55,9 +55,31 @@
       </dl>
 
       <template #footer>
-        <BaseButton id="order-status-back-button" variant="secondary" @click="goToCatalog">
-          Voltar para a loja
-        </BaseButton>
+        <div class="order-status-view__footer">
+          <p
+            v-if="canGoToCheckout"
+            id="order-status-checkout-hint"
+            class="order-status-view__checkout-hint"
+          >
+            Já pagou? Aguarde a confirmação. O botão abre o mesmo checkout do pedido e não gera uma
+            nova cobrança.
+          </p>
+
+          <div class="order-status-view__actions">
+            <BaseButton id="order-status-back-button" variant="secondary" @click="goToCatalog">
+              Voltar para a loja
+            </BaseButton>
+            <BaseButton
+              v-if="canGoToCheckout"
+              id="order-status-checkout-button"
+              variant="cta"
+              :loading="isOpeningCheckout"
+              @click="goToCheckout"
+            >
+              Ir para o pagamento
+            </BaseButton>
+          </div>
+        </div>
       </template>
     </BaseCard>
   </section>
@@ -98,6 +120,7 @@ export default {
     return {
       pollingTimer: null,
       isActive: true,
+      isOpeningCheckout: false,
     }
   },
   computed: {
@@ -112,6 +135,9 @@ export default {
       const billingType = findOptionLabel(BILLING_TYPE_OPTIONS, this.order.billingType)
       const chargeType = findOptionLabel(CHARGE_TYPE_OPTIONS, this.order.chargeType)
       return `${billingType} · ${chargeType}`
+    },
+    canGoToCheckout() {
+      return this.isPending && Boolean(this.order.checkoutUrl)
     },
     isPending() {
       return this.order?.status === OrderStatusEnum.PENDING
@@ -135,6 +161,19 @@ export default {
       if (this.isActive && this.isPending) {
         this.pollingTimer = setTimeout(this.loadOrder, POLLING_INTERVAL_MS)
       }
+    },
+
+    async goToCheckout() {
+      this.isOpeningCheckout = true
+
+      await this.fetchOrderById(this.id)
+
+      if (!this.canGoToCheckout) {
+        this.isOpeningCheckout = false
+        return
+      }
+
+      window.location.assign(this.order.checkoutUrl)
     },
 
     goToCatalog() {
@@ -197,6 +236,25 @@ export default {
 
 .order-status-view__detail dd {
   margin: var(--spacing-xs) 0 0;
+}
+
+.order-status-view__footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.order-status-view__checkout-hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.order-status-view__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
 }
 
 .order-status-view__amount {

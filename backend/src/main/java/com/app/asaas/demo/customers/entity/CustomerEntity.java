@@ -27,6 +27,21 @@ public class CustomerEntity {
     @Column(name = "phone", length = 20)
     private String phone;
 
+    @Column(name = "address", length = 150)
+    private String address;
+
+    @Column(name = "address_number", length = 20)
+    private String addressNumber;
+
+    @Column(name = "complement", length = 100)
+    private String complement;
+
+    @Column(name = "province", length = 100)
+    private String province;
+
+    @Column(name = "postal_code", length = 9)
+    private String postalCode;
+
     public Long getId() {
         return id;
     }
@@ -65,6 +80,46 @@ public class CustomerEntity {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getAddressNumber() {
+        return addressNumber;
+    }
+
+    public void setAddressNumber(String addressNumber) {
+        this.addressNumber = addressNumber;
+    }
+
+    public String getComplement() {
+        return complement;
+    }
+
+    public void setComplement(String complement) {
+        this.complement = complement;
+    }
+
+    public String getProvince() {
+        return province;
+    }
+
+    public void setProvince(String province) {
+        this.province = province;
+    }
+
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    public void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
     }
 
 }

@@ -8,6 +8,7 @@ import com.app.asaas.demo.customers.repository.CustomerRepository;
 import com.app.asaas.demo.orders.dto.CreateOrderRequestDTO;
 import com.app.asaas.demo.orders.dto.OrderDTO;
 import com.app.asaas.demo.orders.entity.OrdersEntity;
+import com.app.asaas.demo.orders.enums.OrderStatusEnum;
 import com.app.asaas.demo.orders.mapper.OrderMapper;
 import com.app.asaas.demo.orders.repository.OrderRepository;
 import com.app.asaas.demo.payment.dto.CheckoutSessionDTO;
@@ -36,7 +37,7 @@ public class OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("Produto", request.productId()));
         CustomerEntity customer = customerRepository.findById(request.customerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente", request.customerId()));
-        return orderRepository.save(orderMapper.toPendingOrder(product, customer));
+        return orderRepository.save(orderMapper.toPendingOrder(product, customer, request));
     }
 
     public OrderDTO attachCheckout(OrdersEntity order, CheckoutSessionDTO checkoutSession) {
@@ -45,7 +46,17 @@ public class OrderService {
         return orderMapper.toDto(orderRepository.saveAndFlush(order));
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
+    public boolean updateStatusByCheckoutId(String checkoutId, OrderStatusEnum status) {
+        return orderRepository.findByAsaasCheckoutId(checkoutId)
+                .filter(order -> order.getStatus() == OrderStatusEnum.PENDING)
+                .map(order -> {
+                    order.setStatus(status);
+                    return true;
+                })
+                .orElse(false);
+    }
+
     public OrderDTO getOrderById(Long id) {
         return orderRepository.findById(id)
                 .map(orderMapper::toDto)

@@ -16,11 +16,11 @@
       />
 
       <BaseRadioGroup
-        v-if="isCreditCard"
         :id="`${id}-charge-type`"
         v-model="chargeType"
         legend="Condição de pagamento"
         :options="chargeTypeOptions"
+        :disabled="!isCreditCard"
       />
     </div>
 

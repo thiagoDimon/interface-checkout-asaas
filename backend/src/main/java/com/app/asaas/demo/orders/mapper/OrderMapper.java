@@ -3,11 +3,10 @@ package com.app.asaas.demo.orders.mapper;
 import org.springframework.stereotype.Component;
 
 import com.app.asaas.demo.customers.entity.CustomerEntity;
+import com.app.asaas.demo.orders.dto.CreateOrderRequestDTO;
 import com.app.asaas.demo.orders.dto.OrderDTO;
 import com.app.asaas.demo.orders.entity.OrdersEntity;
 import com.app.asaas.demo.orders.enums.OrderStatusEnum;
-import com.app.asaas.demo.payment.enums.BillingTypeEnum;
-import com.app.asaas.demo.payment.enums.ChargeTypeEnum;
 import com.app.asaas.demo.product.entity.ProductEntity;
 
 @Component
@@ -29,15 +28,14 @@ public class OrderMapper {
                 order.getUpdatedAt());
     }
 
-    public OrdersEntity toPendingOrder(ProductEntity product, CustomerEntity customer, BillingTypeEnum billingType,
-            ChargeTypeEnum chargeType) {
+    public OrdersEntity toPendingOrder(ProductEntity product, CustomerEntity customer, CreateOrderRequestDTO request) {
         OrdersEntity order = new OrdersEntity();
         order.setProduct(product);
         order.setCustomer(customer);
         order.setAmount(product.getPrice());
         order.setStatus(OrderStatusEnum.PENDING);
-        order.setBillingType(billingType);
-        order.setChargeType(chargeType);
+        order.setBillingType(request.billingType());
+        order.setChargeType(request.chargeType());
         return order;
     }
 

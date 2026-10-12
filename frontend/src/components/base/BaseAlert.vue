@@ -41,7 +41,6 @@ export default {
   flex-direction: column;
   gap: var(--spacing-xs);
   padding: var(--spacing-sm) var(--spacing-md);
-  border-left: 4px solid currentColor;
   border-radius: var(--radius-sm);
 }
 

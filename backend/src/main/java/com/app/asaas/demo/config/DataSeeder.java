@@ -37,7 +37,7 @@ public class DataSeeder implements CommandLineRunner {
 
     private List<ProductEntity> getInitialProducts() {
         ProductEntity tshirt = new ProductEntity();
-        tshirt.setName("Camiseta Masculina Casual Premium Fit");
+        tshirt.setName("Camiseta Masculina Casual");
         tshirt.setDescription("Modelo de corte ajustado, mangas longas raglan em cor contrastante.");
         tshirt.setPrice(new BigDecimal("89.90"));
         tshirt.setImage("https://fakestoreapi.com/img/71-3HjGNDUL._AC_SY879._SX._UX._SY._UY_t.png");
@@ -63,6 +63,11 @@ public class DataSeeder implements CommandLineRunner {
         customer.setEmail("joao.silva@email.com");
         customer.setCpf("24971563792");
         customer.setPhone("11987654321");
+        customer.setAddress("Avenida Paulista");
+        customer.setAddressNumber("1000");
+        customer.setComplement("Apto 101");
+        customer.setProvince("Bela Vista");
+        customer.setPostalCode("01310-100");
         return customer;
     }
 
