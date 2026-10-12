@@ -16,8 +16,9 @@ import com.app.asaas.demo.orders.enums.OrderStatusEnum;
 import com.app.asaas.demo.orders.service.OrderService;
 import com.app.asaas.demo.payment.dto.AsaasWebhookEventDTO;
 import com.app.asaas.demo.payment.dto.CheckoutSessionDTO;
-import com.app.asaas.demo.payment.enums.AsaasCheckoutEventEnum;
+import com.app.asaas.demo.payment.enums.AsaasWebhookEventEnum;
 import com.app.asaas.demo.payment.gateway.PaymentGateway;
+import com.app.asaas.demo.shared.exception.PaymentGatewayException;
 
 @Service
 public class CheckoutService {
@@ -34,11 +35,16 @@ public class CheckoutService {
         this.asaasProperties = asaasProperties;
     }
 
-    @Transactional
     public OrderDTO checkout(CreateOrderRequestDTO request) {
         OrdersEntity order = orderService.createPendingOrder(request);
-        CheckoutSessionDTO checkoutSession = paymentGateway.createCheckout(order);
-        return orderService.attachCheckout(order, checkoutSession);
+
+        try {
+            CheckoutSessionDTO checkoutSession = paymentGateway.createCheckout(order);
+            return orderService.attachCheckout(order, checkoutSession);
+        } catch (PaymentGatewayException exception) {
+            orderService.cancelPendingOrder(order);
+            throw exception;
+        }
     }
 
     public boolean isValidWebhookToken(String token) {
@@ -53,24 +59,26 @@ public class CheckoutService {
 
     @Transactional
     public void processWebhookEvent(AsaasWebhookEventDTO webhook) {
-        OrderStatusEnum newStatus = AsaasCheckoutEventEnum.toOrderStatus(webhook.event()).orElse(null);
-        if (newStatus == null || webhook.checkout() == null) {
+        AsaasWebhookEventEnum webhookEvent = AsaasWebhookEventEnum.fromEvent(webhook.event()).orElse(null);
+        String checkoutId = webhook.checkoutId();
+
+        if (webhookEvent == null || checkoutId == null) {
             LOGGER.info("Evento {} ({}) recebido sem alteração de pedido", webhook.event(), webhook.id());
             return;
         }
 
-        String message = "";
-        String checkoutId = webhook.checkout().id();
+        OrderStatusEnum newStatus = webhookEvent.getOrderStatus();
+        boolean updated = orderService.updateStatusByCheckoutId(checkoutId, newStatus,
+                webhookEvent.getAllowedCurrentStatuses());
 
-        boolean updated = orderService.updateStatusByCheckoutId(checkoutId, newStatus);
         if (updated) {
-            message = "Evento {} ({}): pedido do checkout {} atualizado para {}";
-            LOGGER.info(message, webhook.event(), webhook.id(), checkoutId, newStatus);
+            LOGGER.info("Evento {} ({}): pedido do checkout {} atualizado para {}",
+                    webhook.event(), webhook.id(), checkoutId, newStatus);
             return;
         }
 
-        message = "Evento {} ({}): nenhum pedido pendente para o checkout {}";
-        LOGGER.info(message, webhook.event(), webhook.id(), checkoutId);
+        LOGGER.info("Evento {} ({}): nenhum pedido com status compatível para o checkout {}",
+                webhook.event(), webhook.id(), checkoutId);
     }
 
 }

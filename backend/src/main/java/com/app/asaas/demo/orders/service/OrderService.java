@@ -1,6 +1,9 @@
 package com.app.asaas.demo.orders.service;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,9 +20,13 @@ import com.app.asaas.demo.payment.dto.CheckoutSessionDTO;
 import com.app.asaas.demo.product.entity.ProductEntity;
 import com.app.asaas.demo.product.repository.ProductRepository;
 import com.app.asaas.demo.shared.exception.ResourceNotFoundException;
+import com.app.asaas.demo.shared.exception.TooManyRequestsException;
 
 @Service
 public class OrderService {
+
+    private static final int MAX_ORDERS_PER_WINDOW = 3;
+    private static final Duration ORDER_RATE_LIMIT_WINDOW = Duration.ofMinutes(1);
 
     private final OrderMapper orderMapper;
     private final OrderRepository orderRepository;
@@ -34,14 +41,17 @@ public class OrderService {
         this.orderMapper = orderMapper;
     }
 
+    @Transactional
     public OrdersEntity createPendingOrder(CreateOrderRequestDTO request) {
         ProductEntity product = productRepository.findById(request.productId())
                 .orElseThrow(() -> new ResourceNotFoundException("Produto", request.productId()));
         CustomerEntity customer = customerRepository.findById(request.customerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente", request.customerId()));
+        validateOrderRateLimit(customer.getId());
         return orderRepository.save(orderMapper.toPendingOrder(product, customer, request));
     }
 
+    @Transactional
     public OrderDTO attachCheckout(OrdersEntity order, CheckoutSessionDTO checkoutSession) {
         order.setAsaasCheckoutId(checkoutSession.checkoutId());
         order.setCheckoutUrl(checkoutSession.checkoutUrl());
@@ -49,9 +59,17 @@ public class OrderService {
     }
 
     @Transactional
-    public boolean updateStatusByCheckoutId(String checkoutId, OrderStatusEnum status) {
+    public void cancelPendingOrder(OrdersEntity order) {
+        orderRepository.findById(order.getId())
+                .filter(savedOrder -> savedOrder.getStatus() == OrderStatusEnum.PENDING)
+                .ifPresent(savedOrder -> savedOrder.setStatus(OrderStatusEnum.CANCELED));
+    }
+
+    @Transactional
+    public boolean updateStatusByCheckoutId(String checkoutId, OrderStatusEnum status,
+            Set<OrderStatusEnum> allowedCurrentStatuses) {
         return orderRepository.findByAsaasCheckoutId(checkoutId)
-                .filter(order -> order.getStatus() == OrderStatusEnum.PENDING)
+                .filter(order -> allowedCurrentStatuses.contains(order.getStatus()))
                 .map(order -> {
                     order.setStatus(status);
                     return true;
@@ -59,6 +77,14 @@ public class OrderService {
                 .orElse(false);
     }
 
+    @Transactional
+    public int expirePendingOrdersCreatedBefore(Instant limit) {
+        List<OrdersEntity> staleOrders = orderRepository.findByStatusAndCreatedAtBefore(OrderStatusEnum.PENDING, limit);
+        staleOrders.forEach(order -> order.setStatus(OrderStatusEnum.EXPIRED));
+        return staleOrders.size();
+    }
+
+    @Transactional(readOnly = true)
     public OrderDTO getOrderById(Long id) {
         return orderRepository.findById(id)
                 .map(orderMapper::toDto)
@@ -75,6 +101,13 @@ public class OrderService {
                 .stream()
                 .map(orderMapper::toDto)
                 .toList();
+    }
+
+    private void validateOrderRateLimit(Long customerId) {
+        Instant windowStart = Instant.now().minus(ORDER_RATE_LIMIT_WINDOW);
+        if (orderRepository.countByCustomerIdAndCreatedAtAfter(customerId, windowStart) >= MAX_ORDERS_PER_WINDOW) {
+            throw new TooManyRequestsException("Muitas tentativas de compra. Tente novamente em um minuto.");
+        }
     }
 
 }

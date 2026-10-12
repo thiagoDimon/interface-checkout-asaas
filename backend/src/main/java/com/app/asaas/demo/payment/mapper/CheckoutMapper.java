@@ -17,7 +17,7 @@ import com.app.asaas.demo.product.entity.ProductEntity;
 @Component
 public class CheckoutMapper {
 
-    private static final int MINUTES_TO_EXPIRE = 60;
+    public static final int MINUTES_TO_EXPIRE = 2;
     private static final int MAX_INSTALLMENT_COUNT = 12;
     private static final int ITEM_QUANTITY = 1;
 
