@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -65,7 +66,14 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.BAD_REQUEST, message, request);
     }
 
-    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponseDTO> handleMissingParameter(MissingServletRequestParameterException exception,
+            HttpServletRequest request) {
+        String message = "O parâmetro '" + exception.getParameterName() + "' é obrigatório";
+        return buildResponse(HttpStatus.BAD_REQUEST, message, request);
+    }
+
+        @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponseDTO> handleMessageNotReadable(HttpMessageNotReadableException exception,
             HttpServletRequest request) {
         return buildResponse(HttpStatus.BAD_REQUEST, "Corpo da requisição inválido ou ausente", request);

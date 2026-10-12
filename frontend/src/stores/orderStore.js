@@ -4,6 +4,7 @@ import orderService from '@/services/orderService'
 export const useOrderStore = defineStore('order', {
   state: () => ({
     currentOrder: null,
+    orders: [],
     creatingProductId: null,
     loading: false,
     error: null,
@@ -33,6 +34,19 @@ export const useOrderStore = defineStore('order', {
         return null
       } finally {
         this.creatingProductId = null
+      }
+    },
+
+    async fetchOrdersByCustomerId(customerId) {
+      this.loading = true
+      this.error = null
+
+      try {
+        this.orders = await orderService.getOrdersByCustomerId(customerId)
+      } catch (error) {
+        this.error = error.message
+      } finally {
+        this.loading = false
       }
     },
 

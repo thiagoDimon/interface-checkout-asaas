@@ -1,10 +1,15 @@
 <template>
   <section id="catalog-view" class="catalog-view">
     <header id="catalog-view-header" class="catalog-view__header">
-      <h2 id="catalog-view-title" class="catalog-view__title">Produtos</h2>
-      <p id="catalog-view-subtitle" class="catalog-view__subtitle">
-        Escolha um produto e finalize o pagamento com segurança no checkout do Asaas.
-      </p>
+      <div class="catalog-view__heading">
+        <h2 id="catalog-view-title" class="catalog-view__title">Produtos</h2>
+        <p id="catalog-view-subtitle" class="catalog-view__subtitle">
+          Escolha um produto e finalize o pagamento com segurança no checkout do Asaas.
+        </p>
+      </div>
+      <BaseButton id="catalog-orders-button" variant="secondary" @click="goToOrders">
+        Ver pedidos
+      </BaseButton>
     </header>
 
     <div class="catalog-view__alerts">
@@ -153,6 +158,10 @@ export default {
     ...mapActions(useOrderStore, ['createOrder']),
     ...mapActions(useOrderStore, { clearOrderError: 'clearError' }),
 
+    goToOrders() {
+      this.$router.push({ name: 'orders' })
+    },
+
     openProductDetails(product) {
       this.redirectError = null
       this.clearOrderError()
@@ -208,6 +217,14 @@ export default {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-lg);
+}
+
+.catalog-view__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--spacing-md);
 }
 
 .catalog-view__title {

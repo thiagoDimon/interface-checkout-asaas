@@ -1,5 +1,7 @@
 package com.app.asaas.demo.orders.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,6 +63,18 @@ public class OrderService {
         return orderRepository.findById(id)
                 .map(orderMapper::toDto)
                 .orElseThrow(() -> new ResourceNotFoundException("Pedido", id));
+    }
+
+    @Transactional(readOnly = true)
+    public List<OrderDTO> getOrdersByCustomerId(Long customerId) {
+        if (!customerRepository.existsById(customerId)) {
+            throw new ResourceNotFoundException("Cliente", customerId);
+        }
+
+        return orderRepository.findByCustomerIdOrderByCreatedAtDesc(customerId)
+                .stream()
+                .map(orderMapper::toDto)
+                .toList();
     }
 
 }

@@ -93,11 +93,9 @@ import BaseCard from '@/components/base/BaseCard.vue'
 import BaseLoader from '@/components/base/BaseLoader.vue'
 import OrderStatusBadge from '@/components/order/OrderStatusBadge.vue'
 import { ORDER_STATUS } from '@/constants/orderStatus'
-import { BILLING_TYPE_OPTIONS, CHARGE_TYPE_OPTIONS } from '@/constants/paymentOptions'
 import OrderStatusEnum from '@/enums/orderStatus'
 import { useOrderStore } from '@/stores/orderStore'
-import { formatCurrency, formatDateTime } from '@/utils/formatters'
-import { findOptionLabel } from '@/utils/options'
+import { formatCurrency, formatDateTime, formatPaymentMethod } from '@/utils/formatters'
 
 const POLLING_INTERVAL_MS = 5000
 
@@ -132,9 +130,7 @@ export default {
       return ORDER_STATUS[this.order.status]
     },
     paymentLabel() {
-      const billingType = findOptionLabel(BILLING_TYPE_OPTIONS, this.order.billingType)
-      const chargeType = findOptionLabel(CHARGE_TYPE_OPTIONS, this.order.chargeType)
-      return `${billingType} · ${chargeType}`
+      return formatPaymentMethod(this.order.billingType, this.order.chargeType)
     },
     canGoToCheckout() {
       return this.isPending && Boolean(this.order.checkoutUrl)

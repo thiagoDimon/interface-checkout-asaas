@@ -10,6 +10,10 @@ export default {
     })
     return data
   },
+  async getOrdersByCustomerId(customerId) {
+    const { data } = await httpClient.get('/orders', { params: { customerId } })
+    return data
+  },
   async getOrderById(id) {
     const { data } = await httpClient.get(`/orders/${id}`)
     return data
