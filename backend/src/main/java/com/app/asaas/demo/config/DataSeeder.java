@@ -62,6 +62,7 @@ public class DataSeeder implements CommandLineRunner {
         customer.setName("João Machado Silva");
         customer.setEmail("joao.silva@email.com");
         customer.setCpf("24971563792");
+        customer.setPhone("11987654321");
         return customer;
     }
 

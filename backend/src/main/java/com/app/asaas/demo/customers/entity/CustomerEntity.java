@@ -24,6 +24,9 @@ public class CustomerEntity {
     @Column(name = "cpf", nullable = false, length = 14, unique = true)
     private String cpf;
 
+    @Column(name = "phone", length = 20)
+    private String phone;
+
     public Long getId() {
         return id;
     }
@@ -54,6 +57,14 @@ public class CustomerEntity {
 
     public void setCpf(String cpf) {
         this.cpf = cpf;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
 }
