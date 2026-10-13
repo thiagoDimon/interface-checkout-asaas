@@ -326,5 +326,7 @@ Com isso, as regras do pedido não dependem do Asaas, e trocar de provedor signi
 
 ## Referências
 
+- [Visão geral da documentação do Asaas](https://docs.asaas.com/docs/visao-geral)
 - [Documentação do Asaas Checkout](https://docs.asaas.com/docs/checkout-asaas)
+- [Como iniciar no Asaas Sandbox](https://docs.asaas.com/docs/sandbox)
 - [Painel do Asaas Sandbox](https://sandbox.asaas.com)
