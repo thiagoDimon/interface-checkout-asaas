@@ -11,7 +11,8 @@ public enum AsaasWebhookEventEnum {
     CHECKOUT_PAID(OrderStatusEnum.PAID, Set.of(OrderStatusEnum.PENDING, OrderStatusEnum.EXPIRED)),
     CHECKOUT_EXPIRED(OrderStatusEnum.EXPIRED, Set.of(OrderStatusEnum.PENDING)),
     CHECKOUT_CANCELED(OrderStatusEnum.CANCELED, Set.of(OrderStatusEnum.PENDING)),
-    PAYMENT_CHARGEBACK_REQUESTED(OrderStatusEnum.CANCELED, Set.of(OrderStatusEnum.PAID));
+    PAYMENT_CHARGEBACK_REQUESTED(OrderStatusEnum.CANCELED, Set.of(OrderStatusEnum.PAID)),
+    PAYMENT_REFUNDED(OrderStatusEnum.CANCELED, Set.of(OrderStatusEnum.PAID));
 
     private final OrderStatusEnum orderStatus;
     private final Set<OrderStatusEnum> allowedCurrentStatuses;
