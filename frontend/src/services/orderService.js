@@ -14,6 +14,9 @@ export default {
     const { data } = await httpClient.get('/orders', { params: { customerId } })
     return data
   },
+  async cancelOrder(id) {
+    await httpClient.post(`/orders/${id}/cancel`)
+  },
   async getOrderById(id) {
     const { data } = await httpClient.get(`/orders/${id}`)
     return data

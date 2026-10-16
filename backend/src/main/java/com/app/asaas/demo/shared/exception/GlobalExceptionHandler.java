@@ -38,6 +38,12 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.TOO_MANY_REQUESTS, exception.getMessage(), request);
     }
 
+    @ExceptionHandler(BusinessRuleException.class)
+    public ResponseEntity<ErrorResponseDTO> handleBusinessRule(BusinessRuleException exception,
+            HttpServletRequest request) {
+        return buildResponse(HttpStatus.CONFLICT, exception.getMessage(), request);
+    }
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponseDTO> handleResourceNotFound(ResourceNotFoundException exception,
             HttpServletRequest request) {

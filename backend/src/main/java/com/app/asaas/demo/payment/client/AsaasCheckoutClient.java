@@ -31,4 +31,12 @@ public class AsaasCheckoutClient {
         }
     }
 
+    public void cancelCheckout(String checkoutId) {
+        try {
+            restClient.post().uri("/checkouts/{id}/cancel", checkoutId).retrieve().toBodilessEntity();
+        } catch (RestClientException exception) {
+            throw new PaymentGatewayException("Não foi possível cancelar o checkout no Asaas", exception);
+        }
+    }
+
 }

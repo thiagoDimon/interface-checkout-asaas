@@ -23,6 +23,6 @@ export const ORDER_STATUS = Object.freeze({
     label: 'Cancelado',
     badgeVariant: 'neutral',
     alertVariant: 'info',
-    message: 'O pagamento foi cancelado.',
+    message: 'O seu pedido foi cancelado.',
   },
 })

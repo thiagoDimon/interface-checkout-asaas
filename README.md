@@ -45,6 +45,7 @@ O Asaas Checkout é uma **página de pagamento hospedada pelo Asaas**, com supor
 | `CHECKOUT_EXPIRED` | `EXPIRED` | O checkout venceu sem pagamento (validade de 60 minutos) |
 | `CHECKOUT_CANCELED` | `CANCELED` | O checkout foi cancelado antes do pagamento |
 | `PAYMENT_CHARGEBACK_REQUESTED` | `CANCELED` | O comprador contestou no banco um pedido já pago (chargeback) |
+| `PAYMENT_REFUNDED` | `CANCELED` | O pagamento de um pedido já pago foi estornado |
 
 > O redirecionamento da etapa 6 **não altera o pedido**: a liberação acontece apenas pelo webhook, de servidor para servidor.
 
@@ -158,7 +159,7 @@ O sandbox é o ambiente de testes do Asaas: nenhuma cobrança é real.
    | URL | `https://seu-dominio.ngrok-free.dev/webhooks/asaas` |
    | Token de autenticação | Clique em **Gerar token** e copie o valor para o `ASAAS_WEBHOOK_TOKEN` |
    | Tipo de envio | Sequencial |
-   | Eventos | `CHECKOUT_PAID`, `CHECKOUT_EXPIRED`, `CHECKOUT_CANCELED` e `PAYMENT_CHARGEBACK_REQUESTED` |
+   | Eventos | `CHECKOUT_PAID`, `CHECKOUT_EXPIRED`, `CHECKOUT_CANCELED`, `PAYMENT_CHARGEBACK_REQUESTED` e `PAYMENT_REFUNDED` |
 
 ### 3. Clone o repositório
 

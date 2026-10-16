@@ -6,6 +6,8 @@ export const useOrderStore = defineStore('order', {
     currentOrder: null,
     orders: [],
     creatingProductId: null,
+    cancelling: false,
+    cancelError: null,
     loading: false,
     error: null,
   }),
@@ -63,8 +65,24 @@ export const useOrderStore = defineStore('order', {
       }
     },
 
+    async cancelOrder(id) {
+      this.cancelling = true
+      this.cancelError = null
+
+      try {
+        await orderService.cancelOrder(id)
+        return true
+      } catch (error) {
+        this.cancelError = error.message
+        return false
+      } finally {
+        this.cancelling = false
+      }
+    },
+
     clearError() {
       this.error = null
+      this.cancelError = null
     },
   },
 })

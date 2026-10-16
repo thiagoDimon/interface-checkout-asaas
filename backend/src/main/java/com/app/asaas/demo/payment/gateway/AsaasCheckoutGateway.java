@@ -41,6 +41,11 @@ public class AsaasCheckoutGateway implements PaymentGateway {
         return new CheckoutSessionDTO(response.id(), response.link());
     }
 
+    @Override
+    public void cancelCheckout(String checkoutId) {
+        asaasCheckoutClient.cancelCheckout(checkoutId);
+    }
+
     private String loadProductImage(OrdersEntity order) {
         try {
             return imageBase64Util.downloadAsBase64(order.getProduct().getImage());

@@ -18,7 +18,7 @@
 <script>
 import BaseLoader from './BaseLoader.vue'
 
-const VARIANTS = ['primary', 'secondary', 'cta']
+const VARIANTS = ['primary', 'secondary', 'cta', 'danger']
 const TYPES = ['button', 'submit', 'reset']
 
 export default {
@@ -126,6 +126,15 @@ export default {
 
 .base-button--cta:not(:disabled):hover {
   background-color: var(--color-cta-hover);
+}
+
+.base-button--danger {
+  background-color: var(--color-danger);
+  color: var(--color-primary-contrast);
+}
+
+.base-button--danger:not(:disabled):hover {
+  background-color: var(--color-danger-hover);
 }
 
 .base-button--block {

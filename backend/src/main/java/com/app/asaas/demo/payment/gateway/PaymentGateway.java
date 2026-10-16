@@ -7,4 +7,6 @@ public interface PaymentGateway {
 
     CheckoutSessionDTO createCheckout(OrdersEntity order);
 
+    void cancelCheckout(String checkoutId);
+
 }

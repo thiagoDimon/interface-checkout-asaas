@@ -42,6 +42,12 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrdersByCustomerId(customerId));
     }
 
+    @PostMapping("/{id}/cancel")
+    public ResponseEntity<Void> cancelOrder(@PathVariable Long id) {
+        checkoutService.cancelOrder(id);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<OrderDTO> getOrderById(@PathVariable Long id) {
         return ResponseEntity.ok(orderService.getOrderById(id));

@@ -19,6 +19,7 @@ import com.app.asaas.demo.orders.repository.OrderRepository;
 import com.app.asaas.demo.payment.dto.CheckoutSessionDTO;
 import com.app.asaas.demo.product.entity.ProductEntity;
 import com.app.asaas.demo.product.repository.ProductRepository;
+import com.app.asaas.demo.shared.exception.BusinessRuleException;
 import com.app.asaas.demo.shared.exception.ResourceNotFoundException;
 import com.app.asaas.demo.shared.exception.TooManyRequestsException;
 
@@ -58,11 +59,24 @@ public class OrderService {
         return orderMapper.toDto(orderRepository.saveAndFlush(order));
     }
 
+    @Transactional(readOnly = true)
+    public OrdersEntity getPendingOrder(Long id) {
+        OrdersEntity order = orderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Pedido", id));
+        if (order.getStatus() != OrderStatusEnum.PENDING) {
+            throw new BusinessRuleException("Somente pedidos pendentes podem ser cancelados");
+        }
+        return order;
+    }
+
     @Transactional
-    public void cancelPendingOrder(OrdersEntity order) {
-        orderRepository.findById(order.getId())
-                .filter(savedOrder -> savedOrder.getStatus() == OrderStatusEnum.PENDING)
-                .ifPresent(savedOrder -> savedOrder.setStatus(OrderStatusEnum.CANCELED));
+    public OrderDTO cancelPendingOrder(OrdersEntity order) {
+        OrdersEntity savedOrder = orderRepository.findById(order.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Pedido", order.getId()));
+        if (savedOrder.getStatus() == OrderStatusEnum.PENDING) {
+            savedOrder.setStatus(OrderStatusEnum.CANCELED);
+        }
+        return orderMapper.toDto(savedOrder);
     }
 
     @Transactional

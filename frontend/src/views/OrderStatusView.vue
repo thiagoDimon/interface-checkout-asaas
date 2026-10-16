@@ -1,6 +1,25 @@
 <template>
   <section id="order-status-view" class="order-status-view">
     <header id="order-status-header" class="order-status-view__header">
+      <button
+        id="order-status-back-button"
+        type="button"
+        class="order-status-view__back"
+        aria-label="Voltar para a loja"
+        @click="goToCatalog"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M19 12H5M12 19l-7-7 7-7" />
+        </svg>
+      </button>
       <h2 id="order-status-title" class="order-status-view__title">Pedido #{{ id }}</h2>
     </header>
 
@@ -25,7 +44,10 @@
         <OrderStatusBadge id="order-status-badge" :status="order.status" />
       </div>
 
-      <BaseAlert id="order-status-message" :variant="statusConfig.alertVariant">
+      <BaseAlert v-if="isAwaitingCancellation" id="order-status-cancel-message" variant="info">
+        Aguarde enquanto cancelamos o seu pedido...
+      </BaseAlert>
+      <BaseAlert v-else id="order-status-message" :variant="statusConfig.alertVariant">
         {{ statusConfig.message }}
       </BaseAlert>
 
@@ -54,7 +76,7 @@
         </div>
       </dl>
 
-      <template #footer>
+      <template v-if="isPending && !isAwaitingCancellation" #footer>
         <div class="order-status-view__footer">
           <p
             v-if="canGoToCheckout"
@@ -66,8 +88,13 @@
           </p>
 
           <div class="order-status-view__actions">
-            <BaseButton id="order-status-back-button" variant="secondary" @click="goToCatalog">
-              Voltar para a loja
+            <BaseButton
+              v-if="isPending"
+              id="order-status-cancel-button"
+              variant="secondary"
+              @click="openCancelModal"
+            >
+              Cancelar pedido
             </BaseButton>
             <BaseButton
               v-if="canGoToCheckout"
@@ -82,6 +109,21 @@
         </div>
       </template>
     </BaseCard>
+
+    <BaseConfirmModal
+      id="order-cancel-modal"
+      :open="isCancelModalOpen"
+      title="Cancelar pedido"
+      confirm-label="Cancelar pedido"
+      confirm-variant="danger"
+      :loading="cancelling"
+      :error-message="cancelError ?? ''"
+      @close="closeCancelModal"
+      @confirm="confirmCancel"
+    >
+      Tem certeza que deseja cancelar o pedido #{{ id }}? O link de pagamento será invalidado no
+      Asaas e o pedido não poderá mais ser pago.
+    </BaseConfirmModal>
   </section>
 </template>
 
@@ -90,6 +132,7 @@ import { mapActions, mapState } from 'pinia'
 import BaseAlert from '@/components/base/BaseAlert.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import BaseCard from '@/components/base/BaseCard.vue'
+import BaseConfirmModal from '@/components/base/BaseConfirmModal.vue'
 import BaseLoader from '@/components/base/BaseLoader.vue'
 import OrderStatusBadge from '@/components/order/OrderStatusBadge.vue'
 import { ORDER_STATUS } from '@/constants/orderStatus'
@@ -105,6 +148,7 @@ export default {
     BaseAlert,
     BaseButton,
     BaseCard,
+    BaseConfirmModal,
     BaseLoader,
     OrderStatusBadge,
   },
@@ -119,10 +163,12 @@ export default {
       pollingTimer: null,
       isActive: true,
       isOpeningCheckout: false,
+      isCancelModalOpen: false,
+      isCancelRequested: false,
     }
   },
   computed: {
-    ...mapState(useOrderStore, ['currentOrder', 'loading', 'error']),
+    ...mapState(useOrderStore, ['currentOrder', 'loading', 'error', 'cancelling', 'cancelError']),
     order() {
       return this.currentOrder?.id === Number(this.id) ? this.currentOrder : null
     },
@@ -138,6 +184,9 @@ export default {
     isPending() {
       return this.order?.status === OrderStatusEnum.PENDING
     },
+    isAwaitingCancellation() {
+      return this.isCancelRequested && this.isPending
+    },
   },
   async created() {
     await this.loadOrder()
@@ -147,7 +196,7 @@ export default {
     clearTimeout(this.pollingTimer)
   },
   methods: {
-    ...mapActions(useOrderStore, ['fetchOrderById']),
+    ...mapActions(useOrderStore, ['fetchOrderById', 'cancelOrder', 'clearError']),
     formatCurrency,
     formatDateTime,
 
@@ -172,6 +221,23 @@ export default {
       window.location.assign(this.order.checkoutUrl)
     },
 
+    openCancelModal() {
+      this.clearError()
+      this.isCancelModalOpen = true
+    },
+
+    closeCancelModal() {
+      this.isCancelModalOpen = false
+    },
+
+    async confirmCancel() {
+      const cancelled = await this.cancelOrder(this.id)
+      if (cancelled) {
+        this.isCancelRequested = true
+        this.isCancelModalOpen = false
+      }
+    },
+
     goToCatalog() {
       this.$router.push({ name: 'catalog' })
     },
@@ -186,6 +252,45 @@ export default {
   gap: var(--spacing-lg);
   max-width: 40rem;
   margin: 0 auto;
+}
+
+.order-status-view__header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.order-status-view__back {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-full);
+  background-color: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.order-status-view__back:hover {
+  background-color: var(--color-neutral-soft);
+  color: var(--color-text);
+}
+
+.order-status-view__back:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.order-status-view__back svg {
+  width: 1.5rem;
+  height: 1.5rem;
 }
 
 .order-status-view__title {
@@ -249,7 +354,7 @@ export default {
 .order-status-view__actions {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: var(--spacing-sm);
 }
 

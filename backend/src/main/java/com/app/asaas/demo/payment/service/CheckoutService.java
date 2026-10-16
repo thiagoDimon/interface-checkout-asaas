@@ -47,6 +47,13 @@ public class CheckoutService {
         }
     }
 
+    public void cancelOrder(Long orderId) {
+        OrdersEntity order = orderService.getPendingOrder(orderId);
+        if (order.getAsaasCheckoutId() != null) {
+            paymentGateway.cancelCheckout(order.getAsaasCheckoutId());
+        }
+    }
+
     public boolean isValidWebhookToken(String token) {
         String expectedToken = asaasProperties.webhookToken();
         if (token == null || expectedToken == null || expectedToken.isBlank()) {
